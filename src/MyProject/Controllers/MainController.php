@@ -36,9 +36,4 @@ class MainController
         $title = 'Страница приветствия';
         $this->view->renderHtml('main/hello.php', ['name' => $name, 'title' => $title]);
     }
-
-    public function sayBye(string $name)
-    {
-        echo 'Пока, ' . $name;
-    }
 }
