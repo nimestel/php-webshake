@@ -9,7 +9,6 @@
 namespace MyProject\Controllers;
 
 use MyProject\Models\Articles\Article;
-use MyProject\Models\Users\User;
 use MyProject\View\View;
 
 class ArticlesController
@@ -34,5 +33,20 @@ class ArticlesController
         $this->view->renderHtml('articles/view.php', [
             'article' => $article
         ]);
+    }
+
+    public function edit(int $articleId): void
+    {
+        $article = Article::getById($articleId);
+
+        if ($article === null) {
+            $this->view->renderHtml('errors/404.php', [], 404);
+            return;
+        }
+
+        $article->setName('Новое название статьи');
+        $article->setText('Новый текст статьи');
+
+        $article->save();
     }
 }
