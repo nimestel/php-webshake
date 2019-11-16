@@ -86,9 +86,49 @@ abstract class ActiveRecordEntity
         $db->query($sql, $params2values, static::class);
     }
 
-    private function insert(array $mappedProperties): void
+    protected function insert(array $mappedProperties): void
     {
-        //здесь мы создаём новую запись в базе
+        $filteredProperties = array_filter($mappedProperties);
+
+        $columns = [];
+        $paramsNames = [];
+        $params2values = [];
+        $index = 1;
+        foreach ($filteredProperties as $columnName => $value) {
+            $columns[] = $columnName;
+            $param = ':' . $columnName;
+            $paramsNames[] = $param;
+            $params2values[$param] = $value; // [:columnName => value]
+            $index++;
+        }
+
+        $columnsViaSemicolon = implode(', ', $columns);
+        $paramsNamesViaSemicolon = implode(', ', $paramsNames);
+
+        $sql = 'INSERT INTO ' . static::getTableName()
+            . ' ('
+            . $columnsViaSemicolon
+            . ') VALUES ('
+            . $paramsNamesViaSemicolon
+            . ');';
+
+        $db = Db::getInstance();
+        $db->query($sql, $params2values, static::class);
+        $this->id = $db->getLastInsertId();
+        $this->refresh();
+    }
+
+    private function refresh(): void
+    {
+        $objectFromDb = static::getById($this->id);
+        $reflector = new \ReflectionObject($objectFromDb);
+        $properties = $reflector->getProperties();
+
+        foreach ($properties as $property) {
+            $property->setAccessible(true);
+            $propertyName = $property->getName();
+            $this->$propertyName = $property->getValue($objectFromDb);
+        }
     }
 
     private function mapPropertiesToDbFormat(): array

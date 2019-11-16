@@ -10,6 +10,7 @@ namespace MyProject\Models\Articles;
 
 use MyProject\Models\ActiveRecordEntity;
 use MyProject\Models\Users\User;
+use MyProject\Services\Db;
 
 class Article extends ActiveRecordEntity
 {
@@ -128,6 +129,16 @@ class Article extends ActiveRecordEntity
     public function setAuthorId(string $authorId): Article
     {
         $this->authorId = $authorId;
+        return $this;
+    }
+
+    /**
+     * @param string $authorId
+     * @return Article
+     */
+    public function setAuthor(User $author): Article
+    {
+        $this->authorId = $author->getId();
         return $this;
     }
 }
