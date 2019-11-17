@@ -65,5 +65,15 @@ class ArticlesController
         var_dump($article);
     }
 
+    public function delete(int $articleId): void
+    {
+        $article = Article::getById($articleId);
 
+        if ($article === null) {
+            $this->view->renderHtml('errors/404.php', [], 404);
+            return;
+        }
+
+        $article->delete($articleId);
+    }
 }

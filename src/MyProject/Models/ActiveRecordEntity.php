@@ -70,6 +70,14 @@ abstract class ActiveRecordEntity
         }
     }
 
+    public function delete(int $articleId): void
+    {
+        $sql = 'DELETE FROM ' . static::getTableName() . ' WHERE id = ' . ':id;';
+        $db = Db::getInstance();
+        $db->query($sql, [':id' => $articleId], static::class);
+        $this->id = null;
+    }
+
     private function update(array $mappedProperties): void
     {
         $columns2params = [];
