@@ -8,6 +8,7 @@
 
 namespace MyProject\Models;
 
+use MyProject\Exceptions\NotFoundException;
 use MyProject\Services\Db;
 
 abstract class ActiveRecordEntity
@@ -94,7 +95,7 @@ abstract class ActiveRecordEntity
         $db->query($sql, $params2values, static::class);
     }
 
-    protected function insert(array $mappedProperties): void
+    private function insert(array $mappedProperties): void
     {
         $filteredProperties = array_filter($mappedProperties);
 
