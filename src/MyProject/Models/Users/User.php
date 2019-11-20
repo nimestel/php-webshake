@@ -105,4 +105,10 @@ class User extends ActiveRecordEntity
 
         return $user;
     }
+
+    public function activate(): void
+    {
+        $this->isConfirmed = true;
+        $this->save();
+    }
 }
