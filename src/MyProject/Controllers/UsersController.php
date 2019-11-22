@@ -56,7 +56,7 @@ class UsersController
         $isCodeValid = UserActivationService::checkActivationCode($user, $activationCode);
         if ($isCodeValid) {
             $user->activate();
-            echo 'OK!';
+            $this->view->renderHtml('users/activateSuccessful.php');
         }
     }
 }
