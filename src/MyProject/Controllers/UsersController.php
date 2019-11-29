@@ -9,6 +9,7 @@
 namespace MyProject\Controllers;
 
 use MyProject\Exceptions\InvalidArgumentException;
+use MyProject\Exceptions\NotFoundException;
 use MyProject\Models\Users\User;
 use MyProject\Models\Users\UserActivationService;
 use MyProject\Services\EmailSender;
@@ -29,6 +30,7 @@ class UsersController
         if (!empty($_POST)) {
             try {
                 $user = User::signUp($_POST);
+
             } catch (InvalidArgumentException $e) {
                 $this->view->renderHtml('users/signUp.php', ['error' => $e->getMessage()]);
                 return;
@@ -50,13 +52,28 @@ class UsersController
         $this->view->renderHtml('users/signUp.php');
     }
 
+    /**
+     * @param int $userId
+     * @param string $activationCode
+     * @throws NotFoundException
+     */
     public function activate(int $userId, string $activationCode)
     {
-        $user = User::getById($userId);
-        $isCodeValid = UserActivationService::checkActivationCode($user, $activationCode);
-        if ($isCodeValid) {
-            $user->activate();
-            $this->view->renderHtml('users/activateSuccessful.php');
+        try {
+            $user = User::getById($userId);
+            if (!$user) {
+                throw new NotFoundException('Нет такого пользователя');
+            }
+
+            $isCodeValid = UserActivationService::checkActivationCode($user, $activationCode);
+            if ($isCodeValid) {
+                $user->activate();
+                UserActivationService::deleteActivationCode($user, $activationCode);
+                $this->view->renderHtml('users/activateSuccessful.php');
+            }
+        } catch (NotFoundException $e) {
+            $this->view->renderHtml('users/activateNotSuccessful.php', ['error' => $e->getMessage()]);
+            throw new NotFoundException();
         }
     }
 }
