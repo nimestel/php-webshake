@@ -13,6 +13,7 @@ use MyProject\Exceptions\NotFoundException;
 use MyProject\Models\Users\User;
 use MyProject\Models\Users\UserActivationService;
 use MyProject\Services\EmailSender;
+use MyProject\Services\UsersAuthService;
 use MyProject\View\View;
 
 class UsersController
@@ -75,5 +76,22 @@ class UsersController
             $this->view->renderHtml('users/activateNotSuccessful.php', ['error' => $e->getMessage()]);
             throw new NotFoundException();
         }
+    }
+
+    public function login()
+    {
+        if (!empty($_POST)) {
+            try {
+                $user = User::login($_POST);
+                UsersAuthService::createToken($user);
+                header('Location: /');
+                exit();
+            } catch (InvalidArgumentException $e) {
+                $this->view->renderHtml('users/login.php', ['error' => $e->getMessage()]);
+                return;
+            }
+        }
+
+        $this->view->renderHtml('users/login.php');
     }
 }

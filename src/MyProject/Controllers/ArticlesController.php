@@ -11,6 +11,7 @@ namespace MyProject\Controllers;
 use MyProject\Exceptions\NotFoundException;
 use MyProject\Models\Articles\Article;
 use MyProject\Models\Users\User;
+use MyProject\Services\UsersAuthService;
 use MyProject\View\View;
 
 class ArticlesController
@@ -20,7 +21,9 @@ class ArticlesController
 
     public function __construct()
     {
+        $this->user = UsersAuthService::getUserByToken();
         $this->view = new View(__DIR__ . '/../../../templates');
+        $this->view->setVar('user', $this->user);
     }
 
     public function view(int $articleId)
